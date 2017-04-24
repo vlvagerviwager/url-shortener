@@ -3,6 +3,6 @@ A URL shortener.
 
 What I want to use: 
 
-- Yarn
-- Koa
-- Redis
+- [Yarn](https://yarnpkg.com/en/)
+- [Koa](http://koajs.com/)
+- [Redis](https://redis.io/)
