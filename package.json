@@ -7,9 +7,14 @@
   "author": "zky829",
   "license": "MIT",
   "dependencies": {
+    "eslint": "^4.4.1",
     "koa": "^2.3.0",
     "koa-body": "^2.3.0",
     "koa-router": "^7.2.1",
     "url-regexp": "^1.0.2"
+  },
+  "devDependencies": {
+    "eslint-config-airbnb-base": "^11.3.1",
+    "eslint-plugin-import": "^2.7.0"
   }
 }
