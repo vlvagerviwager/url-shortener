@@ -1,0 +1,13 @@
+{
+  "name": "url-shortener",
+  "version": "1.0.0",
+  "description": "An app that generates shortened URLs.",
+  "main": "index.js",
+  "repository": "https://github.com/zky829/url-shortener.git",
+  "author": "zky829",
+  "license": "MIT",
+  "dependencies": {
+    "koa": "^2.3.0",
+    "koa-route": "^3.2.0"
+  }
+}
