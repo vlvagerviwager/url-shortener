@@ -9,6 +9,7 @@
   "dependencies": {
     "koa": "^2.3.0",
     "koa-body": "^2.3.0",
-    "koa-router": "^7.2.1"
+    "koa-router": "^7.2.1",
+    "url-regexp": "^1.0.2"
   }
 }
