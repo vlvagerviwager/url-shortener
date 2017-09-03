@@ -1,5 +1,11 @@
 /* eslint no-console: 0 */
 
+/*
+ * Run using `nodemon server.js`.
+ */
+
+const createReadStream = require('fs').createReadStream;
+const serve = require('koa-static');
 const Koa = require('koa');
 const router = require('koa-router')();
 const koaBody = require('koa-body');
@@ -7,7 +13,6 @@ const urlRegexp = require('url-regexp');
 
 const app = new Koa();
 app.use(koaBody());
-
 
 /**
  * Validate a URL.
@@ -36,15 +41,15 @@ function generateSlug(length) {
   return slug;
 }
 
-
 async function index(ctx) {
-  ctx.body = '<h1>URL Shortener</h1><br><label>Enter a URL to shorten: <input id="url" type="text"></label><br><button name="submit">Shorten!</button>';
+  ctx.type = 'html';
+  ctx.body = createReadStream('index.html');
 
   return undefined;
 }
 
 async function shortenURL(ctx) {
-  const body = ctx.request.body;
+  const body = JSON.parse(ctx.request.body);
   const linkToShorten = body.url.trim();
 
   if (!isValidUrl(linkToShorten)) {
@@ -71,7 +76,7 @@ router.get('/', index)
   .post('/', shortenURL);
 
 app.use(router.routes());
-
+app.use(serve('js')); // http://localhost:3000/scripts.js, not http://localhost:3000/js/scripts.js...
 
 const port = 3000;
 app.listen(port);
