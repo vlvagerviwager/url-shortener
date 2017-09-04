@@ -39,7 +39,7 @@ app.use(session({
  * @return {Boolean} true is the URL is valid.
  */
 function isValidUrl(value) {
-  return !value.trim() ? false : true || urlRegexp.validate(value);
+  return value.trim().length === 0 ? false : true || urlRegexp.validate(value);
 }
 
 /**
