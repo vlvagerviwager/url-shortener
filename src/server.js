@@ -69,7 +69,7 @@ async function index(ctx) {
 async function shortenURL(ctx) {
   let body = {};
   try {
-    body = JSON.parse(ctx.request.body);
+    body = ctx.request.body;
   } catch (error) {
     console.log(`Invalid request: ${error}`);
     return false;
@@ -84,23 +84,35 @@ async function shortenURL(ctx) {
 
   console.log(`User input: ${linkToShorten}`);
 
+  let responseBody = {};
+
   // Check if the link has been shortened before
-  client.exists(linkToShorten, (existsErr, existsReply) => {
-    if (existsReply === 1) {
-      client.get(linkToShorten, (getErr, getReply) => {
-        console.log(`Shortened URL exists for input: ${getReply}`);
+  let dbReplyPromise = new Promise((resolve, reject) => {
+    client.exists(linkToShorten, (existsErr, existsReply) => {
+      if (existsReply === 1) {
+        client.get(linkToShorten, (getErr, getReply) => {
+          console.log(`Shortened URL exists for input: ${getReply}`);
 
-        ctx.response.body = { url: getReply };
-      });
-    } else {
-      const slug = generateSlug();
-      const shortLink = `https://turtl.es/${slug}`;
+          responseBody = { url: getReply };
+          resolve(responseBody);
+        });
+      } else {
+        const slug = generateSlug();
+        const shortLink = `https://turtl.es/${slug}`;
 
-      console.log(`Shortened link: ${shortLink}`);
+        console.log(`Shortened link: ${shortLink}`);
 
-      client.set(linkToShorten, shortLink, redis.print);
-      ctx.response.body = { url: shortLink };
-    }
+        client.set(linkToShorten, shortLink, redis.print);
+        responseBody = { url: shortLink };
+        resolve(responseBody);
+      }
+    });
+  });
+
+  return dbReplyPromise.then((response) => {
+    ctx.response.body = response;
+  }, (err) => {
+    console.log(`Error getting replies from Redis: ${err}`);
   });
 }
 
