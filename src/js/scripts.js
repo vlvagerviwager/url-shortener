@@ -9,13 +9,16 @@ function shortenUrl() {
     url: inputField.value,
   };
 
-  const myHeaders = new Headers().append('Content-Type', 'application/json');
+  let myHeaders = new Headers();
+  myHeaders.append('Content-Type', 'application/json');
 
   fetch('/', {
-    method: 'post',
-    headers: myHeaders,
-    body: JSON.stringify(payload),
-  }).then(response => response.json()).then((data) => {
-    inputField.value = data.url;
-  });
+      method: 'post',
+      headers: myHeaders,
+      body: JSON.stringify(payload)
+    }).then((response) => {
+      return response.json();
+    }).then((data) => {
+      inputField.value = data.url;
+    });
 }

@@ -13,14 +13,15 @@ const urlRegexp = require('url-regexp');
 const session = require('koa-generic-session');
 const redisStore = require('koa-redis');
 const redis = require('redis');
+
 const client = redis.createClient({ port: 8000 });
 
-client.on('connect', function() {
-    console.log('Connected to Redis established');
+client.on('connect', () => {
+  console.log('Connected to Redis established');
 });
 
-client.on("error", function (err) {
-    console.log("Something went wrong with Redis: " + err);
+client.on('error', (dbErr) => {
+  console.log(`Something went wrong with Redis: ${dbErr}`);
 });
 
 const app = new Koa();
@@ -28,9 +29,7 @@ app.use(koaBody());
 
 app.keys = ['keys', 'keykeys'];
 app.use(session({
-  store: redisStore({
-    port: 8000
-  })
+  store: redisStore({ port: 8000 }),
 }));
 
 /**
@@ -71,14 +70,8 @@ async function shortenURL(ctx) {
   let body = {};
   try {
     body = JSON.parse(ctx.request.body);
-  }
-  catch (error) {
-    console.log('Invalid request:' + error);
-    return false;
-  }
-  
-  if (!body) {
-    console.log('Invalid request');
+  } catch (error) {
+    console.log(`Invalid request: ${error}`);
     return false;
   }
 
@@ -92,27 +85,23 @@ async function shortenURL(ctx) {
   console.log(`User input: ${linkToShorten}`);
 
   // Check if the link has been shortened before
-  client.exists(linkToShorten, function(err, reply) {
-    if (reply === 1) {
-      client.get(linkToShorten, function(err, reply) {
-        console.log('Shortened URL exists for input: ' + reply);
-        ctx.response.body = { url: reply };
-      });
-    }
-    else {
-      // console.log('Input hasn\'t ever been shortened yet. Shortening...');
+  client.exists(linkToShorten, (existsErr, existsReply) => {
+    if (existsReply === 1) {
+      client.get(linkToShorten, (getErr, getReply) => {
+        console.log(`Shortened URL exists for input: ${getReply}`);
 
+        ctx.response.body = { url: getReply };
+      });
+    } else {
       const slug = generateSlug();
       const shortLink = `https://turtl.es/${slug}`;
 
       console.log(`Shortened link: ${shortLink}`);
-      ctx.response.body = { url: shortLink };
 
       client.set(linkToShorten, shortLink, redis.print);
+      ctx.response.body = { url: shortLink };
     }
   });
-
-  return undefined;
 }
 
 
