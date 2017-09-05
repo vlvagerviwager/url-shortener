@@ -22,6 +22,27 @@ describe('URL shortener server', () => {
   });
 
   describe('POST /', () => {
+    it('returns status code 500', (done) => {
+      request.post(base_url, { json: true, body: { } }, (error, response, body) => {
+        expect(response.statusCode).toBe(500);
+        done();
+      });
+    });
+
+    it('returns status code 404', (done) => {
+      request.post(base_url, { json: true, body: { url: '' } }, (error, response, body) => {
+        expect(response.statusCode).toBe(404);
+        done();
+      });
+    });
+
+    xit('returns status code 404', (done) => {
+      request.post(base_url, { json: true, body: { url: 'hello' } }, (error, response, body) => {
+        expect(response.statusCode).toBe(404);
+        done();
+      });
+    });
+
     it('returns status code 200', (done) => {
       request.post(base_url, { json: true, body: { url:'https://github.com/zky829/url-shortener' } }, (error, response, body) => {
         expect(response.statusCode).toBe(200);
