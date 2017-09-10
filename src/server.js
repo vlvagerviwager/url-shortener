@@ -4,6 +4,7 @@
  * Run using `nodemon server.js`.
  */
 
+const { URL } = require('url');
 const createReadStream = require('fs').createReadStream;
 const serve = require('koa-static');
 const Koa = require('koa');
@@ -67,9 +68,13 @@ async function index(ctx) {
 }
 
 async function shortenURL(ctx) {
+  let req;
+  let baseUrl = '';
   let body = {};
   try {
-    body = ctx.request.body;
+    req = ctx.request;
+    baseUrl = new URL(req.origin);
+    body = req.body;
   } catch (error) {
     console.log(`Invalid request: ${error}`);
     return false;
@@ -87,7 +92,7 @@ async function shortenURL(ctx) {
   let responseBody = {};
 
   // Check if the link has been shortened before
-  let dbReplyPromise = new Promise((resolve, reject) => {
+  const dbReplyPromise = new Promise((resolve, reject) => {
     client.exists(linkToShorten, (existsErr, existsReply) => {
       if (existsReply === 1) {
         client.get(linkToShorten, (getErr, getReply) => {
@@ -98,12 +103,12 @@ async function shortenURL(ctx) {
         });
       } else {
         const slug = generateSlug();
-        const shortLink = `https://turtl.es/${slug}`;
+        baseUrl.pathname = `/${slug}`;
 
-        console.log(`Shortened link: ${shortLink}`);
+        console.log(`Slug: ${slug}`);
 
-        client.set(linkToShorten, shortLink, redis.print);
-        responseBody = { url: shortLink };
+        client.set(linkToShorten, slug, redis.print);
+        responseBody = { url: baseUrl };
         resolve(responseBody);
       }
     });
@@ -116,10 +121,29 @@ async function shortenURL(ctx) {
   });
 }
 
+// TODO
+/**
+ * Retrieve the long URL mapped to the slug and redirect to it.
+ *
+ * @param {object} ctx
+ */
+/*
+async function redirectToLongURL(ctx) {
+  const slug = ctx.params.slug;
+
+  // Get long URL from Redis
+  let longURL = '';
+
+  ctx.redirect(longURL);
+}
+*/
+
 
 // -- ROUTES
 
 router.get('/', index)
+  // TODO
+  // .get('/:slug', redirectToLongURL)
   .post('/', shortenURL);
 
 app.use(router.routes());
